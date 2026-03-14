@@ -1,0 +1,76 @@
+name: Frontend CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  NODE_VERSION: '20'
+  WORKING_DIRECTORY: frontnextjs
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_IMAGE_NAME: frontnextjs
+
+jobs:
+  quality-and-build:
+    name: Lint, Test, Audit, Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm run lint
+
+      - name: Run unit tests (Jest)
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm test
+
+      - name: Security audit (npm audit)
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm run audit
+
+      - name: Build Next.js app
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: npm run build
+
+      - name: Upload production build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontnextjs-build
+          path: |
+            ${{ env.WORKING_DIRECTORY }}/.next
+            ${{ env.WORKING_DIRECTORY }}/public
+
+      - name: Validate Docker build
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: docker build -t frontnextjs-ci .
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Retag and push image to Docker Hub
+        run: |
+          LOCAL_IMAGE=frontnextjs-ci
+          REMOTE_IMAGE=${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          docker tag "$LOCAL_IMAGE" "$REMOTE_IMAGE"
+          docker push "$REMOTE_IMAGE"

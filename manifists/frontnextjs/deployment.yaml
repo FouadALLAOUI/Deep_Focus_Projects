@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontnextjs-deployment
+  labels:
+    app: frontnextjs
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontnextjs
+  template:
+    metadata:
+      labels:
+        app: frontnextjs
+    spec:
+      containers:
+        - name: frontnextjs
+          # Replace "your-docker-username" with your real Docker Hub username
+          image: your-docker-username/frontnextjs:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
