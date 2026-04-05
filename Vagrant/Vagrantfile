@@ -1,0 +1,39 @@
+Vagrant.configure("2") do |config|
+  
+    # First VM - argocd-vm
+    config.vm.define "argocd-vm" do |ubuntu|
+      ubuntu.vm.box = "bento/ubuntu-22.04"
+      ubuntu.vm.hostname = "argocd-vm"
+      
+      ubuntu.vm.provider "vmware_desktop" do |v|
+        v.memory = 2048 # Allocate 2GB of RAM or 4GB if you have enough resources (4096 MB)
+        v.cpus = 2 # Allocate 2 CPU cores or 4 if you have enough resources
+        v.gui = true
+        v.vmx["virtualHW.version"] = "19"
+      end
+      
+      # Provision script to install Ansible
+      ubuntu.vm.provision "shell", inline: <<-SHELL
+        apt update
+        apt install ansible -y
+        apt install net-tools -y
+        sudo apt install -y ca-certificates curl apt-transport-https
+        sleep 15
+        # Install Kubectl 
+          curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/kubernetes-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+          apt update
+          apt install -y kubectl
+        # Install k3s
+          curl -sfL https://get.k3s.io | sh -
+          # Wait for k3s to be fully up and running
+          while ! kubectl get nodes; do sleep 1; done        
+        # Setup Kubeconfig
+          mkdir -p /home/vagrant/.kube
+          cp /etc/rancher/k3s/k3s.yaml /home/vagrant/.kube/config
+          chown -R vagrant:vagrant /home/vagrant/.kube       
+
+      SHELL
+    end
+
+  end

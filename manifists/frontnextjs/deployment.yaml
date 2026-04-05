@@ -17,7 +17,7 @@ spec:
       containers:
         - name: frontnextjs
           # Replace "your-docker-username" with your real Docker Hub username
-          image: your-docker-username/frontnextjs:latest
+          image: fouadallaoui/frontnextjs:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
