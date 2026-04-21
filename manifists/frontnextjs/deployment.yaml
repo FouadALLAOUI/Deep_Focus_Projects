@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: frontnextjs
-          image: fouadallaoui/frontnextjs:latest
+          image: fouadallaoui/frontnextjs:080fa3181e247d6b391a31e38b70c136b552a66a
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
