@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontnextjs-deployment
+  namespace: frontnextjs
   labels:
     app: frontnextjs
 spec:
@@ -16,7 +17,6 @@ spec:
     spec:
       containers:
         - name: frontnextjs
-          # Replace "your-docker-username" with your real Docker Hub username
           image: fouadallaoui/frontnextjs:latest
           imagePullPolicy: Always
           ports:
