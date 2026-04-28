@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flights-service-deployment
+  namespace: flights-service
+  labels:
+    app: flights-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flights-service
+  template:
+    metadata:
+      labels:
+        app: flights-service
+    spec:
+      containers:
+        - name: flights-service
+          image: fouadallaoui/flights-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3004
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3004"
+            - name: OPENSKY_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: flights-service-secrets
+                  key: opensky-username
+                  optional: true
+            - name: OPENSKY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: flights-service-secrets
+                  key: opensky-password
+                  optional: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3004
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3004
+            initialDelaySeconds: 30
+            periodSeconds: 30

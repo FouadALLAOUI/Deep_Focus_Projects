@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: flights-service
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/FouadALLAOUI/Deep_Focus_Projects.git
+    targetRevision: HEAD
+    path: manifists/backnodejs/flights-service
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: flights-service
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
