@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: market-service
-          image: fouadallaoui/market-service:latest
+          image: fouadallaoui/market-service:9bc00d324f0d00ac329833433c48481f637c9898
           imagePullPolicy: Always
           ports:
             - containerPort: 3003
