@@ -1,11 +1,11 @@
 name: Backend Microservices CI/CD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backnodejs/**'
+#  push:
+#    branches:
+#      - main
+#    paths:
+#      - 'backnodejs/**'
   pull_request:
     branches:
       - main
